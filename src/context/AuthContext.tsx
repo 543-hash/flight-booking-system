@@ -44,7 +44,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       options: { data: { full_name: fullName } },
     });
     if (error) return { error: friendlyAuthError(error.message) };
+
     if (data.user && !data.session) {
+      const createdAt = data.user.created_at;
+      const isExisting =
+        createdAt && Date.now() - new Date(createdAt).getTime() > 30_000;
+      if (isExisting) {
+        return {
+          error: 'An account with this email already exists. Please sign in instead.',
+          needsLogin: false,
+        };
+      }
       return { error: null, needsLogin: true };
     }
     return { error: null, needsLogin: false };
