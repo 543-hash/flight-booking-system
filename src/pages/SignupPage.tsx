@@ -21,10 +21,15 @@ export function SignupPage() {
       return;
     }
     setLoading(true);
-    const { error } = await signUp(email.trim(), password, fullName.trim());
+    const { error, needsLogin } = await signUp(email.trim(), password, fullName.trim());
     setLoading(false);
     if (error) {
       notify(error, 'error');
+      return;
+    }
+    if (needsLogin) {
+      notify('Account created! Please sign in with your credentials.', 'success');
+      navigate('/login');
       return;
     }
     notify("Account created! You're signed in.", 'success');

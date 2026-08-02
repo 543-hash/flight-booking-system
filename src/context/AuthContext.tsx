@@ -6,7 +6,7 @@ interface AuthContextValue {
   session: Session | null;
   user: User | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string, fullName: string) => Promise<{ error: string | null; needsLogin?: boolean }>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
 }
@@ -44,10 +44,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       options: { data: { full_name: fullName } },
     });
     if (error) return { error: friendlyAuthError(error.message) };
-    if (!data.session) {
-      return { error: 'An account with this email already exists. Please sign in instead.' };
+    if (data.user && !data.session) {
+      return { error: null, needsLogin: true };
     }
-    return { error: null };
+    return { error: null, needsLogin: false };
   };
 
   const signIn = async (email: string, password: string) => {
